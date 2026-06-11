@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend Inmobiliaria (Next.js 16)
 
-## Getting Started
+App Router con autenticación integrada al backend NestJS.
 
-First, run the development server:
+## Requisitos
+
+- Node.js >= 20
+- Backend corriendo en `http://localhost:3000`
+
+## Inicio
 
 ```bash
+cp .env.local.example .env.local
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+App: **http://localhost:3001**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Arquitectura de auth
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Pieza | Ubicación | Función |
+|-------|-----------|---------|
+| Proxy API | `next.config.ts` | `/api/*` → backend (mismo origen, cookies OK) |
+| Cliente HTTP | `src/lib/api/client.ts` | Bearer + `credentials: include` + refresh automático en 401 |
+| Estado | `src/contexts/auth-context.tsx` | Access en memoria, usuario, login/logout |
+| Middleware | `src/middleware.ts` | Protege `/dashboard` si no hay cookie refresh |
+| UI | `login`, `register`, `dashboard`, `perfil` | Formularios y panel |
 
-## Learn More
+## Flujo
 
-To learn more about Next.js, take a look at the following resources:
+1. **Login/register** → access en memoria + cookie `refresh_token` (httpOnly).
+2. Peticiones protegidas envían `Authorization: Bearer …`.
+3. Si el access expira (401), el cliente llama `POST /api/auth/refresh` y reintenta.
+4. **Logout** revoca refresh y redirige a `/login`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` — puerto **3001**
+- `npm run build` / `npm run start`
