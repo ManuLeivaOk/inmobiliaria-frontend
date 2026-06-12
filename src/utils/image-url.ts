@@ -19,5 +19,5 @@ export function resolveImageUrl(url?: string | null) {
     ? url
     : `/${url}`;
 
-  return `${API_URL}${normalized}`;
+  return `https://api.continentalpropiedades.site${normalized}`;
 }

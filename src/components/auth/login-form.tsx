@@ -74,12 +74,6 @@ export function LoginForm() {
       >
         {isSubmitting ? 'Ingresando…' : 'Iniciar sesión'}
       </button>
-      <p className="text-center text-sm text-slate-600">
-        ¿No tenés cuenta?{' '}
-        <Link href="/register" className="font-medium text-emerald-700 hover:underline">
-          Registrate
-        </Link>
-      </p>
     </form>
   );
 }
