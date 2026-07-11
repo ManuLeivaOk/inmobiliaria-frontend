@@ -39,6 +39,7 @@ export function PropertyCreateForm({
     removeImage,
     setCoverImage,
     updateImageFile,
+    setImages,
     features,
     addFeature,
     removeFeature,
@@ -406,10 +407,34 @@ export function PropertyCreateForm({
                   <input
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      updateImageFile(img.id, file);
+                      const files = Array.from(e.target.files ?? []);
+                      if (files.length === 0) return;
+                      if (files.length === 1) {
+                        updateImageFile(img.id, files[0]);
+                      } else {
+                        const [first, ...rest] = files;
+                        setImages((prev) => {
+                          const updated = prev.map((row) =>
+                            row.id === img.id
+                              ? {
+                                  ...row,
+                                  file: first,
+                                  preview: URL.createObjectURL(first),
+                                }
+                              : row,
+                          );
+                          const newRows = rest.map((file) => ({
+                            id: crypto.randomUUID(),
+                            file,
+                            preview: URL.createObjectURL(file),
+                            isCover: false,
+                          }));
+                          return [...updated, ...newRows];
+                        });
+                      }
+                      e.target.value = "";
                     }}
                     className={inputClass}
                   />
